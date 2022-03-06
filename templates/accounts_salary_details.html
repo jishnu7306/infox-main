@@ -1,0 +1,70 @@
+{%extends 'index_accounts.html'%}
+{% load static %}
+{% block content %}
+
+    
+<div class="row">
+    <div class="col-12 col-sm-12 col-md-12 col-lg-12 grid-margin">
+      <div class="card mt-3 mb-5">
+                <div class="card-body" >
+                        
+                    <div class="table-responsive">
+                        <table class="table" id="myTable">
+                            <thead>
+                                <tr>
+                                    <th class="text-white " >Name</th> 
+                                    <th class="text-white ">Date</th>
+                                    <th class="text-white ">Account Number</th>
+                                    <th class="text-white ">Basic Salary</th>
+                                    <th class="text-white " >HRA</th> 
+                                    <th class="text-white ">Conveyns</th>
+                                    <th class="text-white ">Professional Tax</th>
+                                    <th class="text-white ">Incentives</th>
+                                    <th class="text-white ">Delay</th>
+                                    <th class="text-white ">Leave</th>
+                                      
+                                </tr>
+                            </thead>
+                            <tbody>
+                            <br>
+                                <tr>
+                                    
+                                    {% for i  in  mem1 %}
+                                       
+                                   
+                                        
+                                    <td  >
+                                        <img src="{{media_url}}{{i.photo.url}}" class="img-fluid rounded-circle mb-4 " alt="image"  style="margin-right:10px"> 
+                                        <span class="ps-2">{{i.fullname}}</span>
+                                    </td>
+                                    {% endfor %}
+                                    {% for i  in usk %}
+                                    
+                                    <td>  04 Dec 2021</td>
+                                    {% endfor %}
+                                    {% for i  in mem1 %}
+                                    <td>  {{i.account_no}}</td>
+                                    {% endfor %}
+                                    {% for i  in usk %}
+                                    <td> {{i.basic_sallary}}</td>
+                                    <td>  {{i.hra}}</td>
+                                    <td> {{i.conveyns}}</td>
+                                    <td>  {{i.tax}}</td>
+                                    <td>  {{i.incentives}}</td>
+                                    <td>  {{i.delay}}</td>
+                                    <td>  {{i.leavesno}}</td>
+                                    {% endfor %}
+                                </tr>
+                                
+                                
+    
+                                
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    {% endblock %}

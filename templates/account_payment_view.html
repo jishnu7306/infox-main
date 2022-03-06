@@ -1,0 +1,48 @@
+{%extends 'index_accounts.html'%} {% load static %} {% block content %}
+
+
+
+<div class="table-responsive">
+    <table class="table table-bordered  table-dark table-hover">
+      <thead>
+        <tr>
+        
+          <th style="color:white;">DATE</th>
+          <th style="color:white;"> BASSIC SALARY</th>
+          <th style="color:white;"> HRA </th>
+          <th style="color:white;"> INCETIVES </th>
+          <th style="color:white;"> DELAY </th>
+          <th style="color:white;"> LEAVES </th>
+
+         
+        </tr>
+      </thead>
+    </thead>
+    <tbody>
+        {% for i in use %}
+        
+        
+        
+        <tr>
+
+            <td>{{i.fromdate}}</td>
+            <td>{{i.basic_sallary}}</td>
+            <td>{{i.hra}}</td>
+            <td>{{i.incentives}}</td>
+            <td>{{i.conveyns}}</td>
+            <td>{{i.leavesno}}</td>
+           
+      
+
+            
+        </tr>
+        {% endfor%}
+       
+        
+    </tbody>
+</table>
+   </div>
+</div>
+  </div>
+</div>
+{%endblock%}
