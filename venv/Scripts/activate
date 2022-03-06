@@ -38,7 +38,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV="C:\Users\HP\.vscode\PROJECTS\INFOX PROJECT\Corona-free-dark\venv"
+VIRTUAL_ENV="E:\iNFOX_projects\coreapp frontend\infox-main\infox-main\venv"
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"
