@@ -906,13 +906,7 @@ urlpatterns = [
     re_path(r'^accounts_coursefee/$',views.accounts_coursefee,name="accounts_coursefee"),
 
     re_path(r'^accounts_coursefee_addnew$',views.accounts_coursefee_addnew,name="accounts_coursefee_addnew"),
-
-    # re_path(r'^coursefeeupdate$',views.coursefeeupdate,name="coursefeeupdate"),
-
-    # re_path(r'^coursedelete$',views.coursedelete,name="coursedelete"),
-
-
-    re_path(r'^coursefeeupdate/(?P<id>\d+)$',views.coursefeeupdate,name="coursefeeupdate"),
+    re_path(r'^coursefeeupdate/(?P<id>\d+)/$',views.coursefeeupdate,name="coursefeeupdate"),
 
     re_path(r'^coursedelete/(?P<id>\d+)$',views.coursedelete,name="coursedelete"),
 
@@ -941,12 +935,16 @@ urlpatterns = [
     re_path(r'^account_payment_salary/(?P<id>\d+)/$', views.account_payment_salary, name='account_payment_salary'),
     re_path(r'^account_payment_view/(?P<id>\d+)/$', views.account_payment_view, name='account_payment_view'),
 ###################### Fuad
-
+    re_path(r'^accounts_payslip$', views.accounts_payslip, name='accounts_payslip'),
+    re_path(r'^accounts_acntpay$', views.accounts_acntpay, name='accounts_acntpay'),
+    re_path(r'^accounts_paydetails/(?P<id>\d+)/$', views.accounts_paydetails, name='accounts_paydetails'),
+    re_path(r'^accounts_print/(?P<id>\d+)$', views.accounts_print, name='accounts_print'),
 ###################### Althaf
     re_path(r'^accounts_add_bank_acnt/(?P<id>\d+)/$', views.accounts_add_bank_acnt, name='accounts_add_bank_acnt'),
     re_path(r'^accounts_bank_acnt_details/(?P<id>\d+)/$', views.accounts_bank_acnt_details, name='accounts_bank_acnt_details'),
     re_path(r'^accounts_salary_details/(?P<id>\d+)/$', views.accounts_salary_details, name='accounts_salary_details'),
-
+    re_path(r'^logout5/$', views.logout5, name='logout5'),
+   
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

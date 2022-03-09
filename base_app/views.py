@@ -10,6 +10,8 @@ from io import BytesIO
 from django.core.files import File
 from django.conf import settings
 import qrcode
+import json
+from django.views.decorators.csrf import csrf_exempt
 
 # Create your views here.
 def login(request):
@@ -578,8 +580,7 @@ def traineessolved(request):
         return redirect('/')
 def reportissue(request):
     if 'usernametm2' in request.session:
-        if request.session.has_key('usernametm'):
-            usernametm = request.session['usernametm']
+       
         if request.session.has_key('usernametm1'):
             usernametm1 = request.session['usernametm1']
         if request.session.has_key('usernametm2'):
@@ -589,18 +590,14 @@ def reportissue(request):
         mem = user_registration.objects.filter(
             designation_id=usernametm) .filter(fullname=usernametm1)
     
-        des = designation.objects.get(designation='manager')
+        a= user_registration.objects.get(id=usernametm2)
+        print(a.branch_id)  
+        des = designation.objects.get(designation='manager',branch_id=a.branch_id)
         des1 = designation.objects.get(designation='trainingmanager')
-        # cut = user_registration.objects.get(designation_id=usernametm2)
         ree = user_registration.objects.get(designation_id=des.id)
-        # ree1 = user_registration.objects.get(designation_id=usernametm)
-    
         if request.method == 'POST':
-          
             vars = reported_issue()
-            # print(vars.reply)
             vars.issue = request.POST['issue']
-            
             vars.issuestatus = 0
             vars.reporter_id = usernametm2
             vars.designation_id = des1.id
@@ -608,7 +605,6 @@ def reportissue(request):
             vars.reported_date = datetime.now()
             vars.save()
             return redirect('reportedissue')
-    
         return render(request, 'reportissue.html', {'mem': mem})
     else:
         return redirect('/')
@@ -6131,18 +6127,9 @@ def trainee_payment(request):
 
 def trainee_payment_addpayment(request):
     if 'usernametrns2' in request.session:
-        if request.session.has_key('usernametrns'):
-            usernametrns = request.session['usernametrns']
-        if request.session.has_key('usernametrns1'):
-            usernametrns1 = request.session['usernametrns1']
         if request.session.has_key('usernametrns2'):
             usernametrns2 = request.session['usernametrns2']
-        if request.session.has_key('usernametrns3'):
-            usernametrns3 = request.session['usernametrns3']
-        else:
-            usernametrns1 = "dummy"
-        z = user_registration.objects.filter(
-            designation_id=usernametrns) .filter(fullname=usernametrns1)
+        z = user_registration.objects.filter(id=usernametrns2)
         mem1 = user_registration.objects.get(id=usernametrns2)
         if request.method=="POST":
             ad=paymentlist()
@@ -6152,13 +6139,16 @@ def trainee_payment_addpayment(request):
             ad.current_date = datetime.now()
             ad.user_id=mem1
             ad.amount_status=0
+            member = user_registration.objects.get(id=usernametrns2)
+            co = course.objects.get(id = member.course_id)
+            member.total_pay=int(request.POST['amount'])+member.total_pay
+            member.payment_balance = co.total_fee - member.total_pay
+            member.save()
             ad.save()
-        
             return redirect('/trainee_payment')
         return render(request,'trainee_payment_addpayment.html',{'z':z})
     else:
         return redirect('/')
-
 
 def trainee_payment_viewpayment(request):
     if 'usernametrns2' in request.session:
@@ -6175,12 +6165,11 @@ def trainee_payment_viewpayment(request):
             usernametrns1 = "dummy"
         z = user_registration.objects.filter(
             designation_id=usernametrns) .filter(fullname=usernametrns1)
-        mem=paymentlist.objects.all().order_by('-id')
+        mem=paymentlist.objects.filter(user_id = usernametrns2).order_by('-id')
         return render(request,'trainee_payment_viewpayment.html',{'z':z,'mem':mem})
                 
     else:
         return redirect('/')
-
 
 
 
@@ -6192,45 +6181,24 @@ def trainee_payment_viewpayment(request):
 
 def accounts_Dashboard(request):
     if 'usernameacnt2' in request.session:        
-        
         if request.session.has_key('usernameacnt2'):
             usernameacnt2 = request.session['usernameacnt2']
-       
         z = user_registration.objects.filter(id=usernameacnt2)
-        print(z)
-    
-        
         return render(request, 'accounts_Dashboard.html', {'z': z })
     else:
         return redirect('/')
 
-
-
-
 def account_accounts(request):
     if 'usernameacnt2' in request.session:
-        if request.session.has_key('usernameacnt'):
-            usernameacnt = request.session['usernameacnt']
-        if request.session.has_key('usernameacnt1'):
-            usernameacnt1 = request.session['usernameacnt1']
         if request.session.has_key('usernameacnt2'):
             usernameacnt2 = request.session['usernameacnt2']
-        
-        else:
-            usernameacnt1 = "dummy"
-
-        z = user_registration.objects.filter(designation_id= usernameacnt).filter(
-            fullname= usernameacnt1).filter(id= usernameacnt2)
-
-
+        z = user_registration.objects.filter(id= usernameacnt2)
         return render(request, 'account_accounts.html', {'z': z})
     else:
         return redirect('/')
 
-
 def imagechange_accounts(request):
     if 'usernameacnt2' in request.session:
-    
         if request.method == 'POST':
             id = request.GET.get('id')
             abc = user_registration.objects.get(id=id)
@@ -6241,31 +6209,13 @@ def imagechange_accounts(request):
     else:
         return redirect('/')
 
-
-
-
-
-
-###################################  change password Accounts ################################  
-
 def changepassword_accounts(request):
     if 'usernameacnt2' in request.session:
-            if request.session.has_key('usernameacnt'):
-                usernameacnt = request.session['usernameacnt']
-            if request.session.has_key('usernameacnt1'):
-                usernameacnt1 = request.session['usernameacnt1']
             if request.session.has_key('usernameacnt2'):
                 usernameacnt2 = request.session['usernameacnt2']
-            
-            else:
-                usernameacnt1 = "dummy"
-            z = user_registration.objects.filter(designation_id=usernameacnt) .filter(
-            fullname=usernameacnt1) .filter(id=usernameacnt2)
-
-        
+            z = user_registration.objects.filter(id=usernameacnt2)
             if request.method == 'POST':
                 abc = user_registration.objects.get(id=usernameacnt2)
-
                 oldps = request.POST['currentPassword']
                 newps = request.POST['newPassword']
                 cmps = request.POST.get('confirmPassword')
@@ -6274,38 +6224,16 @@ def changepassword_accounts(request):
                         abc.password = request.POST.get('confirmPassword')
                         abc.save()
                         return render(request, 'accounts_Dashboard.html', {'z': z})
-
-
+                    return render(request, 'changepassword_accounts.html', {'z': z})
                 return render(request, 'changepassword_accounts.html', {'z': z})
-
-            return render(request, 'changepassword_accounts.html', {'z': z})
     else:
         return redirect('/')
 
-
-    
-
-
-
-
-
-
-
-################### emil 
-
 def accounts_employee(request): 
     if 'usernameacnt2' in request.session:
-        if request.session.has_key('usernameacnt'):
-            usernameacnt = request.session['usernameacnt']
-        if request.session.has_key('usernameacnt1'):
-            usernameacnt1 = request.session['usernameacnt1']
         if request.session.has_key('usernameacnt2'):
             usernameacnt2 = request.session['usernameacnt2']
-        
-        else:
-            usernameacnt1 = "dummy"
-
-        z = user_registration.objects.filter(designation_id=usernameacnt) .filter(fullname=usernameacnt1) .filter(id=usernameacnt2) 
+        z = user_registration.objects.filter(id=usernameacnt2) 
         des = course.objects.all()
         return render(request, 'accounts_employee.html',{'des':des,'z' : z})
     else:
@@ -6313,45 +6241,21 @@ def accounts_employee(request):
 
 def accounts_emp_dep(request,id):
     if 'usernameacnt2' in request.session:
-        if request.session.has_key('usernameacnt'):
-            usernameacnt = request.session['usernameacnt']
-        if request.session.has_key('usernameacnt1'):
-            usernameacnt1 = request.session['usernameacnt1']
         if request.session.has_key('usernameacnt2'):
             usernameacnt2 = request.session['usernameacnt2']
-        
-        else:
-            usernameacnt1 = "dummy"
-
-        z = user_registration.objects.filter(designation_id=usernameacnt) .filter(
-            fullname=usernameacnt1) .filter(id=usernameacnt2)
+        z = user_registration.objects.filter(id=usernameacnt2)
         mem = course.objects.get(id=id)
-        # des = designation.objects.get(designation='projectmanager')
-        # des1 = designation.objects.get(designation='trainer')
-        # des2 = designation.objects.get(designation='tl')
-        # des3 = designation.objects.get(designation='developer')
         des=designation.objects.all()
-
         context = {'mem':mem,'des':des,'z' : z,}
-        
         return render(request, 'accounts_emp_dep.html', context)
     else:
         return redirect('/')
 
 def accounts_emp_list(request,id,pk): 
     if 'usernameacnt2' in request.session:
-        if request.session.has_key('usernameacnt'):
-            usernameacnt = request.session['usernameacnt']
-        if request.session.has_key('usernameacnt1'):
-            usernameacnt1 = request.session['usernameacnt1']
         if request.session.has_key('usernameacnt2'):
             usernameacnt2 = request.session['usernameacnt2']
-        
-        else:
-            usernameacnt1 = "dummy"
-
-        z = user_registration.objects.filter(designation_id=usernameacnt) .filter(
-            fullname=usernameacnt1) .filter(id=usernameacnt2)  
+        z = user_registration.objects.filter(id=usernameacnt2)  
         mem = course.objects.get(id=id)
         mem1 = designation.objects.get(pk=pk)
         use=user_registration.objects.filter(course_id=mem,designation=mem1)
@@ -6362,43 +6266,20 @@ def accounts_emp_list(request,id,pk):
 
 def accounts_emp_details(request,id):  
     if 'usernameacnt2' in request.session:
-        if request.session.has_key('usernameacnt'):
-            usernameacnt = request.session['usernameacnt']
-        if request.session.has_key('usernameacnt1'):
-            usernameacnt1 = request.session['usernameacnt1']
         if request.session.has_key('usernameacnt2'):
             usernameacnt2 = request.session['usernameacnt2']
-        
-        else:
-            usernameacnt1 = "dummy"
-
-        z = user_registration.objects.filter(designation_id=usernameacnt) .filter(
-            fullname=usernameacnt1) .filter(id=usernameacnt2)  
-        
+        z = user_registration.objects.filter(id=usernameacnt2)  
         vars=user_registration.objects.get(id=id)
-        print(vars)
         context = {'vars':vars,'z' : z,}
         return render(request, 'accounts_emp_details.html', context)
     else:
         return redirect('/')
 
-
-##################### jishnu
-
 def accounts_payment(request):
     if 'usernameacnt2' in request.session:
-        if request.session.has_key('usernameacnt'):
-            usernameacnt = request.session['usernameacnt']
-        if request.session.has_key('usernameacnt1'):
-            usernameacnt1 = request.session['usernameacnt1']
         if request.session.has_key('usernameacnt2'):
             usernameacnt2 = request.session['usernameacnt2']
-        
-        else:
-            usernameacnt1 = "dummy"
-
-        z = user_registration.objects.filter(designation_id=usernameacnt) .filter(
-            fullname=usernameacnt1) .filter(id=usernameacnt2)
+        z = user_registration.objects.filter(id=usernameacnt2)
         des = course.objects.all()
         return render(request, 'accounts_payment.html', {'des' : des ,'z' : z,})
     else:
@@ -6406,288 +6287,125 @@ def accounts_payment(request):
 
 def accounts_payment_dep(request,id): 
     if 'usernameacnt2' in request.session:
-        if request.session.has_key('usernameacnt'):
-            usernameacnt = request.session['usernameacnt']
-        if request.session.has_key('usernameacnt1'):
-            usernameacnt1 = request.session['usernameacnt1']
         if request.session.has_key('usernameacnt2'):
             usernameacnt2 = request.session['usernameacnt2']
-        
-        else:
-            usernameacnt1 = "dummy"
-
-        z = user_registration.objects.filter(designation_id=usernameacnt) .filter(
-            fullname=usernameacnt1) .filter(id=usernameacnt2)
+        z = user_registration.objects.filter(id=usernameacnt2)
         mem = course.objects.get(id=id)
         des = designation.objects.all()
-
         context = {'mem':mem,'des':des,'z' : z,}
-
         return render(request, 'accounts_payment_dep.html', context)
     else:
         return redirect('/')
 
 def accounts_payment_list(request,id,pk):
     if 'usernameacnt2' in request.session:
-        if request.session.has_key('usernameacnt'):
-            usernameacnt = request.session['usernameacnt']
-        if request.session.has_key('usernameacnt1'):
-            usernameacnt1 = request.session['usernameacnt1']
         if request.session.has_key('usernameacnt2'):
             usernameacnt2 = request.session['usernameacnt2']
-        
-        else:
-            usernameacnt1 = "dummy"
-
-        z = user_registration.objects.filter(designation_id=usernameacnt) .filter(
-            fullname=usernameacnt1) .filter(id=usernameacnt2) 
+        z = user_registration.objects.filter(id=usernameacnt2) 
         mem = course.objects.get(id=id)
         mem1 = designation.objects.get(pk=pk)
         use=user_registration.objects.filter(course_id=mem,designation=mem1)
         context = {'use':use,'z' : z,}
-
         return render(request, 'accounts_payment_list.html', context)
     else:
         return redirect('/')
 
-
-
-    ##################### Ajay
-
-
 def accounts_coursefee(request):
     if 'usernameacnt2' in request.session:
-        if request.session.has_key('usernameacnt'):
-            usernameacnt = request.session['usernameacnt']
-        if request.session.has_key('usernameacnt1'):
-            usernameacnt1 = request.session['usernameacnt1']
         if request.session.has_key('usernameacnt2'):
             usernameacnt2 = request.session['usernameacnt2']
-        
-        else:
-            usernameacnt1 = "dummy"
-
-        z = user_registration.objects.filter(designation_id=usernameacnt) .filter(
-            fullname=usernameacnt1) .filter(id=usernameacnt2)
-
+        z = user_registration.objects.filter(id=usernameacnt2)
         mem=course.objects.all()
-
-            
         return render(request,'accounts_coursefee.html',{'mem':mem,'z' : z,})
     else:
         return redirect('/')
 
-
 def accounts_coursefee_addnew(request):
     if 'usernameacnt2' in request.session:
-        if request.session.has_key('usernameacnt'):
-            usernameacnt = request.session['usernameacnt']
-        if request.session.has_key('usernameacnt1'):
-            usernameacnt1 = request.session['usernameacnt1']
         if request.session.has_key('usernameacnt2'):
             usernameacnt2 = request.session['usernameacnt2']
-        
-        else:
-            usernameacnt1 = "dummy"
-
-        z = user_registration.objects.filter(designation_id=usernameacnt) .filter(
-            fullname=usernameacnt1) .filter(id=usernameacnt2)
-
+        z = user_registration.objects.filter(id=usernameacnt2)
         mem=course()
-
         if request.method=="POST":
-
             mem.name=request.POST['coursename']
-
             mem.total_fee=request.POST['totalfee']
-
-            mem.save()
-
-            return redirect('/accounts_coursefee')
-
-
-
-        return render(request,'accounts_coursefee_addnew.html',{'z' : z,})
+            try:
+                user= course.objects.get(name=mem.name)
+                context = {'msg': 'Course already exists!!!....  Try to add another course','z':z}
+                return render(request, 'accounts_coursefee_addnew.html',context)
+            except :
+                mem.save()
+                return redirect('/accounts_coursefee')
+        return render(request,'accounts_coursefee_addnew.html',{'z':z})
     else:
-        return redirect('/')
-
-
-
-
-
+        return redirect('/')  
 
 def coursefeeupdate(request,id):
     if 'usernameacnt2' in request.session:
-        if request.session.has_key('usernameacnt'):
-            usernameacnt = request.session['usernameacnt']
-        if request.session.has_key('usernameacnt1'):
-            usernameacnt1 = request.session['usernameacnt1']
         if request.session.has_key('usernameacnt2'):
             usernameacnt2 = request.session['usernameacnt2']
-        
-        else:
-            usernameacnt1 = "dummy"
-
-        z = user_registration.objects.filter(designation_id=usernameacnt) .filter(
-            fullname=usernameacnt1) .filter(id=usernameacnt2)
-
+        z = user_registration.objects.filter(id=usernameacnt2)
         if request.method=="POST":
-
-        #tid=request.GET.get('tid')
-
             abc=course.objects.get(id=id)
-
             abc.total_fee=request.POST['totalfee']
-
             abc.save()
-
-            return redirect('/accounts_coursefee')
-
+            return redirect('accounts_coursefee')
         return render(request,'accounts_coursefee_addnew.html',{'z' : z,})
     else:
         return redirect('/')
 
-
 def coursedelete(request,id):
     if 'usernameacnt2' in request.session:
-        if request.session.has_key('usernameacnt'):
-            usernameacnt = request.session['usernameacnt']
-        if request.session.has_key('usernameacnt1'):
-            usernameacnt1 = request.session['usernameacnt1']
         if request.session.has_key('usernameacnt2'):
             usernameacnt2 = request.session['usernameacnt2']
-        
-        else:
-            usernameacnt1 = "dummy"
-
-        z = user_registration.objects.filter(designation_id=usernameacnt) .filter(
-            fullname=usernameacnt1) .filter(id=usernameacnt2)
-        #tid=request.GET.get('tid')
-
+        z = user_registration.objects.filter(id=usernameacnt2)
         abc=course.objects.get(id=id)
-
         abc.delete()
-
-        return redirect('/accounts_coursefee')
+        return redirect('accounts_coursefee')
     else:
         return redirect('/')
 
-
-##################### kripa
-
 def accounts_registration_details(request):
     if 'usernameacnt2' in request.session:
-        if request.session.has_key('usernameacnt'):
-            usernameacnt = request.session['usernameacnt']
-        if request.session.has_key('usernameacnt1'):
-            usernameacnt1 = request.session['usernameacnt1']
         if request.session.has_key('usernameacnt2'):
             usernameacnt2 = request.session['usernameacnt2']
-        
-        else:
-            usernameacnt1 = "dummy"
-
-        z = user_registration.objects.filter(designation_id=usernameacnt) .filter(
-            fullname=usernameacnt1) .filter(id=usernameacnt2)
-
-        # deta = user_registration.objects.all()
+        z = user_registration.objects.filter(id=usernameacnt2)
         des = designation.objects.get(designation='trainee')
         deta = user_registration.objects.filter(designation=des.id)
-
         vars = paymentlist.objects.all()
-        print(vars)
-        
         return render(request,'accounts_registration_details.html', { 'z' : z, 'deta':deta , 'vars':vars})
     else:
         return redirect('/')
 
-
 def accounts_payment_detail_list(request, id):
     if 'usernameacnt2' in request.session:
-        if request.session.has_key('usernameacnt'):
-            usernameacnt = request.session['usernameacnt']
-        if request.session.has_key('usernameacnt1'):
-            usernameacnt1 = request.session['usernameacnt1']
         if request.session.has_key('usernameacnt2'):
             usernameacnt2 = request.session['usernameacnt2']
-        
-        else:
-            usernameacnt1 = "dummy"
-
-        z = user_registration.objects.filter(designation_id=usernameacnt) .filter(
-            fullname=usernameacnt1) .filter(id=usernameacnt2)
-
+        z = user_registration.objects.filter(id=usernameacnt2)
         a = user_registration.objects.get(id=id)
-
-        pay = paymentlist.objects.filter(user_id_id = a.id)
-        
-        return render(request,'accounts_payment_detail_list.html',{ 'z' : z, 'pay': pay })
+        c = course.objects.get(id=a.course_id)
+        pay = paymentlist.objects.filter(user_id_id = a.id).order_by('-id')
+        return render(request,'accounts_payment_detail_list.html',{ 'z' : z, 'pay': pay , 'a':a , 'c':c})
     else:
         return redirect('/')
 
-# def acct_payment(request, id):
-#     # a = user_registration.objects.get(id=id)
-
-#     hai = paymentlist.objects.get(id= id)
-    
-#     if request.method == 'POST':
-#         # hai.amount_date = datetime.now() 
-#         # hai.amount_pay = request.POST.get('amount')
-#         hai.amount_status = 1
-#         # hai.user_id = user_registration.objects.get(id=id)
-#         # t = request.POST.get('total')
-#         # amt = request.POST.get('amount')
-#         # hai.balance_amt = t - amt
-        
-#         hai.save()        
-#         return redirect('/accounts_registration_details')
-#     return render(request,'accounts_registration_details.html')
-
 def verify(request,id):
-    
-
     rem = paymentlist.objects.get(id=id)
-    print(rem)
     rem.amount_status = 1
     rem.save()
     return redirect('/accounts_registration_details')
     
-
 def reminder(request,id):
-
-    
     rem = user_registration.objects.get(id=id)
-    print(rem)
     rem.payment_status = 1
     rem.save()
-
     return redirect('/accounts_registration_details')
 
-
-
-    
-
-############
-
-
-
-
-
-###################### Sanisha
 def accounts_expenses(request):
     if 'usernameacnt2' in request.session:
-        if request.session.has_key('usernameacnt'):
-            usernameacnt = request.session['usernameacnt']
-        if request.session.has_key('usernameacnt1'):
-            usernameacnt1 = request.session['usernameacnt1']
         if request.session.has_key('usernameacnt2'):
             usernameacnt2 = request.session['usernameacnt2']
-        
-        else:
-            usernameacnt1 = "dummy"
-
-        z = user_registration.objects.filter(designation_id=usernameacnt) .filter(
-            fullname=usernameacnt1) .filter(id=usernameacnt2)
+        z = user_registration.objects.filter(id=usernameacnt2)
         vars=acntexpensest.objects.all()
         return render(request, 'accounts_expenses.html',{'z':z, 'vars':vars})
     else:
@@ -6695,18 +6413,9 @@ def accounts_expenses(request):
 
 def accounts_expenses_viewEdit(request,id):
     if 'usernameacnt2' in request.session:
-        if request.session.has_key('usernameacnt'):
-            usernameacnt = request.session['usernameacnt']
-        if request.session.has_key('usernameacnt1'):
-            usernameacnt1 = request.session['usernameacnt1']
         if request.session.has_key('usernameacnt2'):
             usernameacnt2 = request.session['usernameacnt2']
-        
-        else:
-            usernameacnt1 = "dummy"
-
-        z = user_registration.objects.filter(designation_id=usernameacnt) .filter(
-            fullname=usernameacnt1) .filter(id=usernameacnt2)
+        z = user_registration.objects.filter(id=usernameacnt2)
         var=acntexpensest.objects.filter(id=id)
         return render(request, 'accounts_expenses_viewEdit.html',{'z':z, 'var':var})
     else:
@@ -6714,18 +6423,9 @@ def accounts_expenses_viewEdit(request,id):
 
 def accounts_expenses_viewEdit_Update(request,id):
     if 'usernameacnt2' in request.session:
-        if request.session.has_key('usernameacnt'):
-            usernameacnt = request.session['usernameacnt']
-        if request.session.has_key('usernameacnt1'):
-            usernameacnt1 = request.session['usernameacnt1']
         if request.session.has_key('usernameacnt2'):
             usernameacnt2 = request.session['usernameacnt2']
-        
-        else:
-            usernameacnt1 = "dummy"
-
-        z = user_registration.objects.filter(designation_id=usernameacnt) .filter(
-            fullname=usernameacnt1) .filter(id=usernameacnt2)
+        z = user_registration.objects.filter(id=usernameacnt2)
         if request.method == 'POST':
             emps = acntexpensest.objects.get(id=id)
             emps.payee = request.POST['payee']
@@ -6740,25 +6440,15 @@ def accounts_expenses_viewEdit_Update(request,id):
             emps.total = request.POST['total']                
             emps.save() 
             return redirect('/accounts_expenses')
-
         return render(request,'accounts_expenses_viewEdit.html',{'z':z})
     else:
         return redirect('/')
 
 def accounts_expense_newTransaction(request):
     if 'usernameacnt2' in request.session:
-        if request.session.has_key('usernameacnt'):
-            usernameacnt = request.session['usernameacnt']
-        if request.session.has_key('usernameacnt1'):
-            usernameacnt1 = request.session['usernameacnt1']
         if request.session.has_key('usernameacnt2'):
             usernameacnt2 = request.session['usernameacnt2']
-        
-        else:
-            usernameacnt1 = "dummy"
-
-        z = user_registration.objects.filter(designation_id=usernameacnt) .filter(
-            fullname=usernameacnt1) .filter(id=usernameacnt2)
+        z = user_registration.objects.filter(id=usernameacnt2)
         mem=acntexpensest()
         if request.method == 'POST':
             mem.payee = request.POST['payee']
@@ -6778,41 +6468,20 @@ def accounts_expense_newTransaction(request):
     else:
         return redirect('/')
 
-###################### Leya
-
 def account_report(request):
     if 'usernameacnt2' in request.session:
-        if request.session.has_key('usernameacnt'):
-            usernameacnt = request.session['usernameacnt']
-        if request.session.has_key('usernameacnt1'):
-            usernameacnt1 = request.session['usernameacnt1']
         if request.session.has_key('usernameacnt2'):
             usernameacnt2 = request.session['usernameacnt2']
-        
-        else:
-            usernameacnt1 = "dummy"
-
-        z = user_registration.objects.filter(designation_id=usernameacnt) .filter(
-            fullname=usernameacnt1) .filter(id=usernameacnt2)
-    
+        z = user_registration.objects.filter(id=usernameacnt2)
         return render(request,'account_report.html',{'z':z})
     else:
         return redirect('/')
         
 def account_reportt_issue(request):
     if 'usernameacnt2' in request.session:
-        if request.session.has_key('usernameacnt'):
-            usernameacnt = request.session['usernameacnt']
-        if request.session.has_key('usernameacnt1'):
-            usernameacnt1 = request.session['usernameacnt1']
         if request.session.has_key('usernameacnt2'):
             usernameacnt2 = request.session['usernameacnt2']
-        
-        else:
-            usernameacnt1 = "dummy"
-
-        z = user_registration.objects.filter(designation_id=usernameacnt) .filter(
-            fullname=usernameacnt1) .filter(id=usernameacnt2)
+        z = user_registration.objects.filter(id=usernameacnt2)
         vars = reported_issue()
         if request.method == 'POST':
             vars.issue=request.POST['issue']
@@ -6827,205 +6496,165 @@ def account_reportt_issue(request):
     
 def account_reported_issue(request):
     if 'usernameacnt2' in request.session:
-        if request.session.has_key('usernameacnt'):
-            usernameacnt = request.session['usernameacnt']
-        if request.session.has_key('usernameacnt1'):
-            usernameacnt1 = request.session['usernameacnt1']
         if request.session.has_key('usernameacnt2'):
             usernameacnt2 = request.session['usernameacnt2']
-        
-        else:
-            usernameacnt1 = "dummy"
-
-        z = user_registration.objects.filter(designation_id=usernameacnt) .filter(
-            fullname=usernameacnt1) .filter(id=usernameacnt2)
+        z = user_registration.objects.filter(id=usernameacnt2)
         n = reported_issue.objects.filter(reporter_id=usernameacnt2).order_by('-id')
         return render(request,'account_reported_issue.html',{'z':z,'n':n})
     else:
         return redirect('/')
 
-
-
-###################### Keerthi
-
 def account_payment_details(request,id):
     if 'usernameacnt2' in request.session:
-        if request.session.has_key('usernameacnt'):
-            usernameacnt = request.session['usernameacnt']
-        if request.session.has_key('usernameacnt1'):
-            usernameacnt1 = request.session['usernameacnt1']
         if request.session.has_key('usernameacnt2'):
             usernameacnt2 = request.session['usernameacnt2']
-        
-        else:
-            usernameacnt1 = "dummy"
-
-        z = user_registration.objects.filter(designation_id=usernameacnt) .filter(
-            fullname=usernameacnt1) .filter(id=usernameacnt2)
+        z = user_registration.objects.filter(id=usernameacnt2)
         vars=user_registration.objects.get(id=id)
-        print(vars)
         context = {'vars':vars,'z' : z,}
         return render(request, 'account_payment_details.html', context)
     else:
         return redirect('/')
 
-
-    
-
 def account_payment_salary(request,id):
     if 'usernameacnt2' in request.session:
-        if request.session.has_key('usernameacnt'):
-            usernameacnt = request.session['usernameacnt']
-        if request.session.has_key('usernameacnt1'):
-            usernameacnt1 = request.session['usernameacnt1']
         if request.session.has_key('usernameacnt2'):
             usernameacnt2 = request.session['usernameacnt2']
-        
-        else:
-            usernameacnt1 = "dummy"
-
-        z = user_registration.objects.filter(designation_id=usernameacnt) .filter(
-            fullname=usernameacnt1) .filter(id=usernameacnt2)
-        
+        z = user_registration.objects.filter(id=usernameacnt2)
         vars=user_registration.objects.get(id=id)
         if request.method == "POST":
             abc = acntspayslip()
-            abc.basic_sallary = request.POST["salary"]
+            abc.basic_salary = request.POST["salary"]
             abc.hra = request.POST["hra"]
             abc.conveyns = request.POST["ca"]
-            abc.incometax = request.POST["pt"]
+            abc.pf_tax = request.POST["pt"]
             abc.incentives = request.POST["ins"]
             abc.delay = request.POST["delay"]
             abc.leavesno= request.POST["leave"]
+            abc.fromdate= request.POST["efdate"]
             abc.tax = 0
             abc.pf = 0
+            abc.incometax = 0
+            abc.basictype = request.POST["basictype"]
+            abc.hratype = request.POST["hratype"]
+            abc.contype = request.POST["contype"]
+            abc.protype = request.POST["protype"]
+            abc.instype = request.POST["instype"]
+            abc.deltype = request.POST["deltype"]
+            abc.leatype = request.POST["leatype"]
+            
             abc.user_id_id = vars.id
             abc.department_id = vars.department.id
             abc.designation_id = vars.designation.id
             abc.save()
-            print(abc)
-            print("hai")
-        
-        
         return render(request, 'account_payment_salary.html',{'vars':vars,'z' : z,})
     else:
         return redirect('/')
 
 def account_payment_view(request,id):
     if 'usernameacnt2' in request.session:
-        if request.session.has_key('usernameacnt'):
-            usernameacnt = request.session['usernameacnt']
-        if request.session.has_key('usernameacnt1'):
-            usernameacnt1 = request.session['usernameacnt1']
         if request.session.has_key('usernameacnt2'):
             usernameacnt2 = request.session['usernameacnt2']
-        
-        else:
-            usernameacnt1 = "dummy"
-
-        z = user_registration.objects.filter(designation_id=usernameacnt) .filter(
-            fullname=usernameacnt1) .filter(id=usernameacnt2)
-        
+        z = user_registration.objects.filter(id=usernameacnt2)
         reg =user_registration.objects.get(id=id)
         use=acntspayslip.objects.filter(user_id_id=id)
         return render(request, 'account_payment_view.html',{'reg':reg,'use':use,'z' : z,})
     else:
         return redirect('/')
-###################### Fuad
 
-
-
-###################### Althaf
 def accounts_bank_acnt_details(request,id):
     if 'usernameacnt2' in request.session:
-        if request.session.has_key('usernameacnt'):
-            usernameacnt = request.session['usernameacnt']
-        if request.session.has_key('usernameacnt1'):
-            usernameacnt1 = request.session['usernameacnt1']
         if request.session.has_key('usernameacnt2'):
             usernameacnt2 = request.session['usernameacnt2']
-        
-        else:
-            usernameacnt1 = "dummy"
-
-        z = user_registration.objects.filter(designation_id=usernameacnt) .filter(
-            fullname=usernameacnt1) .filter(id=usernameacnt2)
-
+        z = user_registration.objects.filter(id=usernameacnt2)
         mem1=user_registration.objects.filter(id=id)
-
-        
-
         return render(request,'accounts_bank_acnt_details.html',{ 'mem1':mem1,'z': z})
     else:
         return redirect('/')
 
-
-
 def accounts_add_bank_acnt(request,id):
     if 'usernameacnt2' in request.session:
-
-        if request.session.has_key('usernameacnt'):
-            usernameacnt = request.session['usernameacnt']
-        if request.session.has_key('usernameacnt1'):
-            usernameacnt1 = request.session['usernameacnt1']
         if request.session.has_key('usernameacnt2'):
             usernameacnt2 = request.session['usernameacnt2']
-        
-        else:
-            usernameacnt1 = "dummy"
-
-        z = user_registration.objects.filter(designation_id=usernameacnt) .filter(
-            fullname=usernameacnt1) .filter(id=usernameacnt2)
-
+        z = user_registration.objects.filter(id=usernameacnt2)
         mem1=user_registration.objects.filter(id=id)
-
-        
         if request.method == 'POST':
-
             vars = user_registration.objects.get(id=id)
             vars.account_no = request.POST['account_no']
             vars.ifsc = request.POST['ifsc']
             vars.bank_branch = request.POST['bank_branch']
             vars.bank_name= request.POST['bank_name']
-        
-            #vars = user_registration(account_no=account_no,ifsc=ifsc,bank_branch=branch,bank_name=bank_name)
             vars.save()
-
-            #return redirect("/accounts_bank_acnt_details")
         return render(request,'accounts_add_bank_acnt.html',{'mem1':mem1,'z': z})
     else:
         return redirect('/')
 
-
-        
-
-        
-
-
 def accounts_salary_details(request,id):
     if 'usernameacnt2' in request.session:
-        if request.session.has_key('usernameacnt'):
-            usernameacnt = request.session['usernameacnt']
-        if request.session.has_key('usernameacnt1'):
-            usernameacnt1 = request.session['usernameacnt1']
         if request.session.has_key('usernameacnt2'):
             usernameacnt2 = request.session['usernameacnt2']
-        
-        else:
-            usernameacnt1 = "dummy"
-
-
-        z = user_registration.objects.filter(designation_id=usernameacnt) .filter(
-            fullname=usernameacnt1) .filter(id=usernameacnt2)
-        
+        z = user_registration.objects.filter(id=usernameacnt2)
         mem1=user_registration.objects.filter(id=id)
-        #mem=user_registration.objects.get(id=id)
         usk=acntspayslip.objects.filter(user_id=id)
-        #var = acntspayslip.objects.get(id=id)
-
         return render(request,'accounts_salary_details.html',{ 'mem1':mem1,'usk':usk,'z': z})
     else:
         return redirect('/')
 
+def logout5(request):
+    if 'usernameacnt2' in request.session:  
+        request.session.flush()
+        return redirect('/')
+    else:
+        return redirect('/') 
 
-    
+@csrf_exempt
+def accounts_acntpay(request):
+    if 'usernameacnt2' in request.session:
+
+                                             
+        fdate = request.POST['fdate']
+        tdate = request.POST['tdate']
+        dept_id = int(request.POST['depmt'])
+        desig_id = int(request.POST['desi'])  
+        names = acntspayslip.objects.filter(fromdate__range=(fdate,tdate),designation_id= desig_id, department_id= dept_id).values('user_id__fullname','eno', 'user_id__account_no', 'user_id__bank_name', 'user_id__bank_branch','user_id__id', 'user_id__email')  
+        print(fdate)
+        print(tdate)
+        print(dept_id)
+        print(desig_id)
+        print(names)
+                
+        return render(request,'accounts_acntpay.html', {'names':names})
+    else:
+        return redirect('/')
+
+def accounts_payslip(request):
+    if 'usernameacnt2' in request.session:
+        if request.session.has_key('usernameacnt2'):
+            usernameacnt2 = request.session['usernameacnt2']
+        z = user_registration.objects.filter(id=usernameacnt2)   
+        dept = department.objects.all()
+        des = designation.objects.all()
+        return render(request, 'accounts_payslip.html', {'dept':dept, 'des':des,'z':z})      
+    else:
+        return redirect('/')
+def accounts_paydetails(request,id):
+    if 'usernameacnt2' in request.session:
+        if request.session.has_key('usernameacnt2'):
+            usernameacnt2 = request.session['usernameacnt2']
+        z = user_registration.objects.filter(id=usernameacnt2)   
+        user = user_registration.objects.get(id=id)
+        acc = acntspayslip.objects.get(user_id=id)
+        names = acntspayslip.objects.all()
+        return render(request, 'accounts_paydetails.html', {'acc':acc, 'user':user,'z':z})
+    else:
+        return redirect('/')
+
+def accounts_print(request,id):
+    if 'usernameacnt2' in request.session:
+        if request.session.has_key('usernameacnt2'):
+            usernameacnt2 = request.session['usernameacnt2']
+        z = user_registration.objects.filter(id=usernameacnt2)   
+        user = user_registration.objects.get(id=id)
+        acc = acntspayslip.objects.get(user_id=id)
+        return render(request, 'accounts_print.html', {'acc':acc, 'user':user,'z':z})
+    else:
+        return redirect('/')

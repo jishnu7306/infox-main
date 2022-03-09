@@ -7,13 +7,17 @@
     <div class="col-12 col-sm-12 col-md-12 col-lg-12 grid-margin">
       <div class="card mt-3 mb-5">
                 <div class="card-body" >
-                        
+                    <form>
+                        <div class="input-group input-group-sm mb-3">
+                            <input type="text" class="form-control text-white" id="myInput" onkeyup="myFunction()" placeholder="Search" />
+                        </div>
+                    </form>
                     <div class="table-responsive">
                         <table class="table" id="myTable">
                             <thead>
                                 <tr>
                                     <th class="text-white " >Name</th> 
-                                    <th class="text-white ">Date</th>
+                                    
                                     <th class="text-white ">Account Number</th>
                                     <th class="text-white ">Basic Salary</th>
                                     <th class="text-white " >HRA</th> 
@@ -38,18 +42,16 @@
                                         <span class="ps-2">{{i.fullname}}</span>
                                     </td>
                                     {% endfor %}
-                                    {% for i  in usk %}
                                     
-                                    <td>  04 Dec 2021</td>
-                                    {% endfor %}
+                                   
                                     {% for i  in mem1 %}
                                     <td>  {{i.account_no}}</td>
                                     {% endfor %}
                                     {% for i  in usk %}
-                                    <td> {{i.basic_sallary}}</td>
+                                    <td> {{i.basic_salary}}</td>
                                     <td>  {{i.hra}}</td>
                                     <td> {{i.conveyns}}</td>
-                                    <td>  {{i.tax}}</td>
+                                    <td>  {{i.pf_tax}}</td>
                                     <td>  {{i.incentives}}</td>
                                     <td>  {{i.delay}}</td>
                                     <td>  {{i.leavesno}}</td>
@@ -67,4 +69,24 @@
         </div>
     </div>
     </div>
+    <script>
+        function myFunction() {
+            var input, filter, table, tr, td, i, txtValue;
+            input = document.getElementById("myInput");
+            filter = input.value.toUpperCase();
+            table = document.getElementById("myTable");
+            tr = table.getElementsByTagName("tr");
+            for (i = 0; i <script tr.length; i++) {
+                td = tr[i].getElementsByTagName("td")[0];
+                if (td) {
+                    txtValue = td.textContent || td.innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                        tr[i].style.display = "";
+                    } else {
+                        tr[i].style.display = "none";
+                    }
+                }
+            }
+        }
+        </script>
     {% endblock %}

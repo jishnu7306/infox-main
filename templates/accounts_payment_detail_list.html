@@ -15,14 +15,14 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-12 col-sm-12 col-md-12 col-lg-12">
-                            <h4> Trainers</h4>
+                            <h4> Payment Details</h4>
                         </div>
                         <div class="col-12 col-sm-12 col-md-12 col-lg-12">
-                            <form>
+                            {% comment %} <form>
                                 <div class="input-group input-group-sm mb-3">
                                     <input type="text" class="form-control" id="myInput" onkeyup="myFunction()" placeholder="Search for names.." title="Type in a name" style="color:white;">
                                 </div>
-                            </form>
+                            </form> {% endcomment %}
                         </div>
                     </div>
 
@@ -36,9 +36,9 @@
                                     <th style="padding-left:38px;"> Date </th>
                                     <th style="padding-left:15px;"> Name </th>
                                     <th style="padding-left:12px;"> Amount </th>
-                                    <th style="padding-left:12px;">Balance</th>
+                                    
                                     <th style="padding-left:28px;">Download </th>
-                                    <th style="padding-left:28px;"> Status </th>
+                                    <th style="padding-left:15px;"> Status </th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -49,15 +49,15 @@
                                     <td>{{i.amount_date|date:"d-m-Y"}}</td>
                                     <td> {{i.user_id.fullname}}</td>
                                     <td>{{i.amount_pay}}</td>
-                                    <td>0000 </td>
-                                    {% comment %} <td>{{i.balance}} </td> {% endcomment %}
+                                    <!-- <td>0000 </td> -->
+                                    
                                     <td> 
                                     {% if i.amount_downlod %}                
                                         <a href="{{i.amount_downlod.url}}" class="btn btn-outline-primary mr-2 ml-6  " style="font-size: 15px; font-weight: 100;"  download>  Download</a>
                                     {% endif %} 
                                     </td>
                                     <td>   
-                                        Completed
+                                        Verified
                                     </td>
                                 </tr>
                                 {% endif %}
@@ -67,7 +67,7 @@
                                     <td>{{i.amount_date|date:"d-m-Y"}}</td>
                                     <td>{{i.user_id.fullname}}</td>
                                     <td><input type="text" class="form-control text-light" value="{{i.amount_pay}}" name="amount" id="amid"></td>
-                                    <td></td>
+                                    
                                     <td>{% if i.amount_downlod %}
                                         <a href="{{i.amount_downlod.url}}" class="btn btn-outline-primary mr-2 ml-6  " style="font-size: 15px; font-weight: 100;"  download>  Download</a>
                                       {% endif %}
@@ -86,6 +86,17 @@
                                 
                             </tbody>
                         </table>
+                        <div class="row mt-5 mb-3">
+                        <div class="col-12 col-sm-9 col-md-9 col-lg-9 ">
+                            <label class="">Balance : {{a.payment_balance}}</label>
+                            <!-- <p>{{a.payment_balance}}</p> -->
+                        </div>
+                        <div class="col-12 col-sm-3 col-md-3 col-lg-3">
+                            <label class="">Total : {{c.total_fee}}</label>
+                            <!-- <p>{{c.total_fee}}</p> -->
+ 
+                        </div>
+                        </div>
                         
                         
                         

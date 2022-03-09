@@ -111,16 +111,16 @@ class user_registration(models.Model):
     status = models.CharField(max_length=240, null=True, default='')
     tl_id = models.IntegerField(default='0',null=True, blank=True)
     projectmanager_id = models.IntegerField(default='0',null=True, blank=True)
-
-
-
-    account_no = models.CharField(max_length=200, null=True, default='0')
+    total_pay=models.IntegerField(default='0')
+ 
+    payment_balance = models.IntegerField( default='0')
+    account_no = models.CharField(max_length=200, null=True, default='')
     ifsc =  models.CharField(max_length=200, null=True, default='')
     bank_name = models.CharField(max_length=240, null=True, default='')
     bank_branch = models.CharField(max_length=240, null=True, default='')
 
     payment_status = models.CharField(max_length=200, null=True, default='')
-    course = models.ForeignKey(course, on_delete=models.DO_NOTHING, related_name='course_name',null=True,blank=True)
+    course = models.ForeignKey(course, on_delete=models.SET_NULL, related_name='course_name',null=True,blank=True)
 
     
     
@@ -140,7 +140,7 @@ class paymentlist(models.Model):
     amount_status = models.CharField(max_length=200, null=True)
     amount_downlod = models.FileField(upload_to = 'images/', null=True, blank=True)
     balance_amt = models.IntegerField(default='0')
-    course = models.ForeignKey(course, on_delete=models.DO_NOTHING, related_name='total',null=True,blank=True, default='')
+    course = models.ForeignKey(course, on_delete=models.SET_NULL, related_name='total',null=True,blank=True, default='')
 
     @property
     def balance(self):
@@ -169,7 +169,13 @@ class acntspayslip(models.Model):
     leavesno = models.IntegerField() 
     pf_tax = models.IntegerField()
     delay = models.IntegerField()
-
+    basictype =  models.CharField(max_length=255,default='')
+    hratype = models.CharField(max_length=255,default='')
+    contype = models.CharField(max_length=255,default='')
+    protype = models.CharField(max_length=255,default='')
+    instype = models.CharField(max_length=255,default='')
+    deltype = models.CharField(max_length=255,default='')
+    leatype = models.CharField(max_length=255,default='')
 
 class acntexpensest (models.Model):
     payee =models.CharField(max_length=100)
@@ -234,7 +240,7 @@ class qualification(models.Model):
 
     def __str__(self):
         return self.user
-
+ 
 
 class project(models.Model):
     projectmanager = models.ForeignKey(user_registration, on_delete=models.DO_NOTHING,

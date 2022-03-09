@@ -46,8 +46,7 @@ table tr[data-href] {
                   <th style="padding-left:25px;"> Designation </th>
                   <th style="padding-left:15px;"> Trainer </th>
                   <th style="padding-left:15px;"> Date of Appointment </th>
-                  <th> Total </th>
-                  {% comment %} <th> Balance Payement </th> {% endcomment %}
+                 
                   <th style="padding-left:25px;"> Payement </th>
                   <th style="padding-left:25px;"> Reminder </th>
                   
@@ -70,8 +69,7 @@ table tr[data-href] {
                   
                   <td > {{t.department.department}} </td>
                   <td style="padding-left:45px;">{{t.joiningdate|date:"d-m-Y"}} </td>
-                  <td style="padding-left:15px;">{{t.course.total_fee}}</td> 
-                  {% comment %} <td style="padding-left:40px;">{{t.balance}}</td> {% endcomment %}
+                  
                   <td>
                     
                     <a href="{% url 'accounts_payment_detail_list' t.id %}"  class="btn btn-outline-success btn-icon-text" >Payement </a>

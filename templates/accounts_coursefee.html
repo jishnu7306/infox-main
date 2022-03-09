@@ -34,11 +34,12 @@
                             {% if mem %}
                             {% for t in mem %}
                             <tr>
-                                <td>{{t.id}}</td>
+                                <td>{{forloop.counter}}</td>
                                     
                                 <td>{{t.name}}</td>
                                 <td>{{t.total_fee}}</td>
-                                <form action="coursedelete?tid={{t.id}}" method="post">
+                                <!--<form action="coursedelete?tid={{t.id}}" method="post">-->
+                                <form action="{% url 'coursedelete' t.id %}" method="post">
                                     {% csrf_token %}
                                     <td>
                                         <button type="button" data-toggle="modal" data-target="#myModal{{t.id}}" class="btn btn-social-icon-text btn-outline-primary"><i class="mdi mdi-tooltip-edit"></i>Update</button>
@@ -70,7 +71,8 @@
     <div class="modal-dialog">
         <div class="col-12 grid-margin stretch-card bg-dark text-light modal-content">
         <!-- Modal Header -->
-            <form action="coursefeeupdate?tid={{t.id}}" method="post" enctype="multipart/form-data" autocomplete="off">
+            <!--<form action="coursefeeupdate?tid={{t.id}}" method="post" enctype="multipart/form-data" autocomplete="off">-->
+                <form action="{% url 'coursefeeupdate' t.id %}" method="post" enctype="multipart/form-data" autocomplete="off">
                 {%csrf_token%}
                     <div class="modal-header">
                         <h4 class="modal-title">UPDATE</h4>
@@ -85,7 +87,7 @@
                                     <div class="form-group row pt-2">
                                         <label for="exampleInputUsername2" class="col-sm-3 col-form-label">Total Fee</label>
                                         <div class="col-sm-9">
-                                            <input type="text" class="form-control text-light" name="totalfee" required /></div>
+                                            <input type="text" class="form-control text-light" name="totalfee"value={{t.total_fee}} required /></div>
                                         </div>
                                         <br />
                                         <div class="row pt-2">
